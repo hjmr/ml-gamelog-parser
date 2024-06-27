@@ -25,6 +25,7 @@ class Kyoku:
         self.dora = []
         self.honba = 0
         self.bakaze = 0
+        self.ryukyoku = False
 
         self.kyoku_data = kyoku_data
         self.current_step = 0
@@ -33,7 +34,7 @@ class Kyoku:
         # fmt: off
         self.commands = {
             "haipai":     self.do_haipai,
-            "ryukyoku":   self.do_dummy,
+            "ryukyoku":   self.do_ryukyoku,
             "dice":       self.do_dummy,
             "sutehai":    self.do_sutehai,
             "kyokustart": self.do_kyokustart,
@@ -78,6 +79,10 @@ class Kyoku:
 
     def do_kyokuend(self, args):
         return False
+    
+    def do_ryukyoku(self, args):
+        self.ryukyoku = True
+        return True
 
     def do_haipai(self, args):
         player = self.get_player(args[0])
@@ -129,13 +134,17 @@ class Kyoku:
     def do_point(self, args):
         player = self.players[args[0]]
         point_op = args[1][0]
-        point = int(args[1][1:])
         if point_op == "+":
-            player.point += point
+            player.point += int(args[1][1:])
         elif point_op == "-":
-            player.point -= point
+            player.point -= int(args[1][1:])
         elif point_op == "=":
-            player.point = point
+            player.point = int(args[1][1:])
+        elif "0" <= point_op  and point_op <= "9":
+            if self.ryukyoku:
+                player.point += int(args[1])
+            else:
+                player.point = int(args[1])
         else:
             raise ValueError("Invalid point operation")
         return True

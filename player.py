@@ -50,12 +50,13 @@ class Player:
         if tsumogiri:
             self.sutehai_flags.append(sutehai_flags["tsumogiri"])
         else:
-            self.tehai.append(self.tsumo)
-            self.tehai.remove(sutehai)
-            self.sutehai_flags.append(sutehai_flags["tedashi"])
-        self.tsumo = 0
-        self.tsumogiri = tsumogiri
-        self.do_ripai()
+            if 0 < self.tsumo:
+                self.tehai.append(self.tsumo)
+                self.tehai.remove(sutehai)
+                self.sutehai_flags.append(sutehai_flags["tedashi"])
+                self.tsumo = 0
+                self.tsumogiri = tsumogiri
+                self.do_ripai()
     
     def do_richi(self):
         self.richi = True
@@ -125,3 +126,41 @@ class Player:
         ]
         # fmt: on
         return " ".join(str_array)
+
+
+
+#設計図を作る
+#手牌を作る関数
+#河とかをつくる関数
+#フラグ、局情報、点棒を追加
+
+    def make_data(self):
+        self.make_tehai = [[self.tehai[idx] if idx < len(self.tehai) else 0] for idx in range(13)]
+        self.make_furo = [[self.tehai[idx] if idx < len(self.furo) else 0] for idx in range(16)]
+        self.make_sutehai = [[self.sutehai[idx] if idx < len(self.sutehai) else 0] for idx in range(25)]
+
+
+    def make_tehai(self):
+        tehai_data = [self.tehai[idx] if idx < len(self.tehai) else 0 for idx in range(13)]
+        return tehai_data
+    
+    def make_furo(self):
+        furo_data = [self.furo[idx] if idx < len(self.furo) else 0 for idx in range(16)]
+        return furo_data
+    
+    def make_sutehai(self):
+        sutehai_data = [self.sutehai[idx] if idx < len(self.sutehai) else 0 for idx in range(25)]
+        return sutehai_data
+
+    def make_flag(self):
+        richi_flags_data = [is_richi(self.sutehai_flags[idx]) if idx < len(self.sutehai_flags) else 0 for idx in range(25)]
+        naki_flags_data = [is_naki(self.sutehai_flags[idx]) if idx < len(self.sutehai_flags) else 0 for idx in range(25)]
+        tsumogiri_flags_data = [is_tsumogiri(self.sutehai_flags[idx]) if idx < len(self.sutehai_flags) else 0 for idx in range(25)]
+    
+        return richi_flags_data, naki_flags_data, tsumogiri_flags_data
+        
+
+
+
+
+

@@ -1,18 +1,5 @@
 from player import Player
-
-# fmt: off
-code2hai = [
-    "0",
-    # 萬子
-    "1m", "2m", "3m", "4m", "5m", "5M", "6m", "7m", "8m", "9m",
-    # 筒子
-    "1p", "2p", "3p", "4p", "5p", "5P", "6p", "7p", "8p", "9p",
-    # 索子
-    "1s", "2s", "3s", "4s", "5s", "5S", "6s", "7s", "8s", "9s",
-    # 東南西北白発中
-    "1z", "2z", "3z", "4z", "5z", "6z", "7z",
-]
-# fmt : on
+from const_pai import code2hai, code2disphai
 
 class Kyoku:
     def __init__(self, kyoku_data: list):
@@ -25,6 +12,7 @@ class Kyoku:
         self.dora = []
         self.honba = 0
         self.bakaze = 0
+        self.kyoutaku = 0
 
         self.kyoku_data = kyoku_data
         self.current_step = 0
@@ -72,6 +60,7 @@ class Kyoku:
         self.oya = self.players[args[1]]
         self.honba = args[2]
         self.bakaze = code2hai.index(args[4])
+        self.kyoutaku = args[3]
         for idx in range(4):
             self.players[self.player_names[idx]].kaze = code2hai.index(args[5:][idx])
         return True
@@ -141,7 +130,80 @@ class Kyoku:
         return True
 
     def show(self):
+        dora_disp = "".join([code2disphai[self.dora[idx] if idx < len(self.dora) else 0] for idx in range(4)])
         if 0 < len(self.teban):
-            print("teban: " + self.teban[-1].name)
+            print("teban: " + self.teban[-1].name + " dora: " + dora_disp)
         for player_name in self.player_names:
             self.players[player_name].show()
+
+
+
+#データを用意してextendしていく
+#くっつけるやつ作る
+#どうやって呼び出すか        
+
+    def make_tr_data(self):
+        point_threshold = (-12000, -4500, 0, 4500, 12000)
+        trdata = []
+        if 0 < len(self.teban):
+            teban_player = self.teban[-1]
+
+            #手牌は自分のものだけ追加
+            trdata.extend(teban_player.make_tehai())
+
+            base_idx = self.player_names.index(teban_player.name)
+            base_point = teban_player.point
+            for add_idx in range(4):
+                idx = (base_idx + add_idx) % 4
+                player_name = self.player_names[idx]
+                p = self.players[player_name]
+                
+                
+                #鳴きと捨て牌を追加
+                trdata.extend(p.make_furo() + p.make_sutehai())
+                
+                # フラグ情報を一度に取得して追加
+                richi_flags, naki_flags, tsumogiri_flags = p.make_flag()
+                trdata.extend(richi_flags + naki_flags + tsumogiri_flags)
+                
+                #点棒情報を追加
+                if 0  < add_idx:
+                    diff_point = p.point - base_point
+                    normalized_point = len(point_threshold)
+                    for p_idx, poi_t in enumerate(point_threshold):
+                        if diff_point < poi_t:
+                            normalized_point = p_idx
+                            break
+                    trdata.append(normalized_point)
+                
+                #親情報を追加
+                if p == self.oya:
+                    trdata.append(1)
+                else:
+                    trdata.append(0)
+
+
+            #ドラ情報を追加
+            dora_data = self.dora[:]
+            if len(dora_data) < 4:
+                dora_data.extend([0] * (4 - len(dora_data)))
+            trdata.extend(dora_data)
+
+            #本場情報を追加
+            trdata.append(int(self.honba))
+
+            #場風情報を追加
+            trdata.append(self.bakaze)
+
+            #供託情報を追加
+            trdata.append(int(float(self.kyoutaku) / 1000))
+            
+
+
+
+        return trdata
+
+            
+
+
+

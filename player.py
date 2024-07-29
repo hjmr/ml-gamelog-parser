@@ -1,16 +1,4 @@
-# fmt: off
-code2hai = [
-    "  ",
-    # 萬子
-    "一", "二", "三", "四", "五", "五", "六", "七", "八", "九",
-    # 筒子
-    "(1", "(2", "(3", "(4", "(5", "(5", "(6", "(7", "(8", "(9",
-    # 索子
-    "[1", "[2", "[3", "[4", "[5", "[5", "[6", "[7", "[8", "[9",
-    # 東南西北白発中
-    "東", "南", "西", "北", "白", "発", "中",
-]
-# fmt : on
+from const_pai import code2disphai
 
 sutehai_flags = {
     "tedashi": 0,
@@ -98,10 +86,10 @@ class Player:
         def is_richi(flag):
             return 0 < ((flag % 8) // 4)
 
-        disp_tehai = [code2hai[self.tehai[idx] if idx < len(self.tehai) else 0] for idx in range(13)]
-        disp_furo = [code2hai[self.furo[idx] if idx < len(self.furo) else 0] for idx in range(16)]
+        disp_tehai = [code2disphai[self.tehai[idx] if idx < len(self.tehai) else 0] for idx in range(13)]
+        disp_furo = [code2disphai[self.furo[idx] if idx < len(self.furo) else 0] for idx in range(16)]
         # sutehai display
-        disp_sutehai = [code2hai[self.sutehai[idx] if idx < len(self.sutehai) else 0] for idx in range(25)]
+        disp_sutehai = [code2disphai[self.sutehai[idx] if idx < len(self.sutehai) else 0] for idx in range(25)]
         disp_richi_flags = [is_richi(self.sutehai_flags[idx]) if idx < len(self.sutehai_flags) else 0 for idx in range(25)]
         disp_naki_flags = [is_naki(self.sutehai_flags[idx]) if idx < len(self.sutehai_flags) else 0 for idx in range(25)]
         disp_tsumogiri_flags = [is_tsumogiri(self.sutehai_flags[idx]) if idx < len(self.sutehai_flags) else 0 for idx in range(25)]
@@ -109,7 +97,7 @@ class Player:
         disp_sutehai = [hai + flag for hai, flag in zip(disp_sutehai, disp_sutehai_flags)]
 
         disp_rich = "R" if self.richi else " "
-        disp_str = "".join(disp_tehai) + "|" + code2hai[self.tsumo] + "|" + "".join(disp_furo) + "|" + "".join(disp_sutehai) + "|" + disp_rich + "|" + str(self.point)
+        disp_str = "".join(disp_tehai) + "|" + code2disphai[self.tsumo] + "|" + "".join(disp_furo) + "|" + "".join(disp_sutehai) + "|" + disp_rich + "|" + str(self.point)
         print(self.name + ":" + disp_str)
 
     def __str__(self):
@@ -153,14 +141,30 @@ class Player:
         return sutehai_data
 
     def make_flag(self):
+        def is_richi(flag):
+            return 2 if 0 < ((flag % 8) // 4) else 1
         richi_flags_data = [is_richi(self.sutehai_flags[idx]) if idx < len(self.sutehai_flags) else 0 for idx in range(25)]
+        
+        def is_naki(flag):
+            return 2 if 0 < ((flag % 4) // 2) else 1
         naki_flags_data = [is_naki(self.sutehai_flags[idx]) if idx < len(self.sutehai_flags) else 0 for idx in range(25)]
+        
+        def is_tsumogiri(flag):
+            return 2 if 0 < (flag % 2 ) else 1
         tsumogiri_flags_data = [is_tsumogiri(self.sutehai_flags[idx]) if idx < len(self.sutehai_flags) else 0 for idx in range(25)]
     
         return richi_flags_data, naki_flags_data, tsumogiri_flags_data
-        
+    
+    
+    def make_point(self):
+        # ここでpointを正規化するロジックを追加
+        min_point = 0  # 最小値を設定
+        max_point = 50  # 最大値を設定
+        point_data = (self.point - min_point) / (max_point - min_point)
+        return point_data
+    
 
-
+    
 
 
 

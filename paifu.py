@@ -46,6 +46,7 @@ def extract_one_kyoku(json_data, kyoku_num):
 if __name__ == "__main__":
     args = parse_args()
     json_data = load_paifu(args.file)
+    print(count_kyoku(json_data))
     kyoku_data = extract_one_kyoku(json_data, args.kyoku_num)
 
     with open("hoge.json", "w") as f:
@@ -55,5 +56,8 @@ if __name__ == "__main__":
     while kyoku.step():
         print("---------------------------")
         kyoku.show()
+        #showの代わりにmakeflatdataが返してきたtrdataを表示
+        data = kyoku.make_tr_data()
+        print(data)
     print("====== 終局 ======")
     kyoku.show()

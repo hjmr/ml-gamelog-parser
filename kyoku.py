@@ -19,6 +19,9 @@ class Kyoku:
         self.current_step = 0
         self.teban = []
 
+        self.is_tsumo = False
+        self.is_sutehai = False
+
         # fmt: off
         self.commands = {
             "haipai":     self.do_haipai,
@@ -47,6 +50,9 @@ class Kyoku:
 
     def step(self):
         playing = True
+        self.is_sutehai = False
+        self.is_tsumo = False
+
         entry = self.kyoku_data[self.current_step]
         if entry["cmd"] not in self.commands:
             raise ValueError(f"Invalid command: {entry['cmd']}")
@@ -83,6 +89,7 @@ class Kyoku:
         player = self.get_player(args[0])
         tsumo_code = code2hai.index(args[2])
         player.do_tsumo(tsumo_code)
+        self.is_tsumo = True
         return True
 
     def do_sutehai(self, args):
@@ -90,6 +97,7 @@ class Kyoku:
         sutehai_code = code2hai.index(args[1])
         tsumogiri = True if len(args) == 3 and args[2] == "tsumogiri" else False
         player.do_sutehai(sutehai_code, tsumogiri)
+        self.is_sutehai = True
         return True
 
     def do_dora(self, args):

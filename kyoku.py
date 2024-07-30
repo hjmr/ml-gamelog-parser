@@ -1,18 +1,6 @@
 from player import Player
+from pai_const import code2hai, code2disp
 
-# fmt: off
-code2hai = [
-    "0",
-    # 萬子
-    "1m", "2m", "3m", "4m", "5m", "5M", "6m", "7m", "8m", "9m",
-    # 筒子
-    "1p", "2p", "3p", "4p", "5p", "5P", "6p", "7p", "8p", "9p",
-    # 索子
-    "1s", "2s", "3s", "4s", "5s", "5S", "6s", "7s", "8s", "9s",
-    # 東南西北白発中
-    "1z", "2z", "3z", "4z", "5z", "6z", "7z",
-]
-# fmt : on
 
 class Kyoku:
     def __init__(self, kyoku_data: list):
@@ -79,7 +67,7 @@ class Kyoku:
 
     def do_kyokuend(self, args):
         return False
-    
+
     def do_ryukyoku(self, args):
         self.ryukyoku = True
         return True
@@ -116,11 +104,7 @@ class Kyoku:
             return True
 
         player = self.get_player(args[0])
-        open_funcs = {
-            "[": player.do_open_kakan,
-            "(": player.do_open_ankan,
-            "<": player.do_open_ponchi
-        }
+        open_funcs = {"[": player.do_open_kakan, "(": player.do_open_ankan, "<": player.do_open_ponchi}
         tedashi_str = args[1][1:-1]
         tedashi_code = [code2hai.index(tedashi_str[idx : idx + 2]) for idx in range(0, len(tedashi_str), 2)]
         naki_code = code2hai.index(args[2]) if len(args) == 3 else 0
@@ -140,7 +124,7 @@ class Kyoku:
             player.point -= int(args[1][1:])
         elif point_op == "=":
             player.point = int(args[1][1:])
-        elif "0" <= point_op  and point_op <= "9":
+        elif "0" <= point_op and point_op <= "9":
             if self.ryukyoku:
                 player.point += int(args[1])
             else:
@@ -150,7 +134,34 @@ class Kyoku:
         return True
 
     def show(self):
+        disp_dora = "".join([code2disp[dora] for dora in self.dora])
         if 0 < len(self.teban):
-            print("teban: " + self.teban[-1].name)
+            print("teban: " + self.teban[-1].name + " dora: " + disp_dora)
         for player_name in self.player_names:
             self.players[player_name].show()
+
+    def get_data(self):
+        current_data = []
+
+        if 0 < len(self.teban):
+            dora_data = [self.dora[idx] if idx < len(self.dora) else 0 for idx in range(4)]
+            current_data.extend(dora_data)
+
+            teban_idx = self.player_names.index(self.teban[-1].name)
+            for rel_idx in range(4):
+                idx = (teban_idx + rel_idx) % 4
+                player_name = self.player_names[idx]
+                player = self.players[player_name]
+
+                # 手番のプレイヤーの手牌
+                if rel_idx == 0:  # teban
+                    current_data.extend(player.get_tehai_data())
+                    current_data.append(player.get_tsumo_data())
+
+                current_data.extend(player.get_furo_data())
+                current_data.extend(player.get_sutehai_data())
+                current_data.extend(player.get_tsumogiri_flags())
+                current_data.extend(player.get_richi_flags())
+                current_data.extend(player.get_naki_flags())
+
+        return current_data

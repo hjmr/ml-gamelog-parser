@@ -6,7 +6,7 @@ from kyoku import Kyoku
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-k", "--kyoku_num", type=int, help="kyoku number")
+    parser.add_argument("-k", "--kyoku_num", type=int, default=-1, help="kyoku number")
     parser.add_argument("file", help="paifu file")
     return parser.parse_args()
 
@@ -46,14 +46,18 @@ def extract_one_kyoku(json_data, kyoku_num):
 if __name__ == "__main__":
     args = parse_args()
     json_data = load_paifu(args.file)
-    kyoku_data = extract_one_kyoku(json_data, args.kyoku_num)
+    if args.kyoku_num == -1:
+        print("kyoku count:", count_kyoku(json_data))
+    else:
+        kyoku_data = extract_one_kyoku(json_data, args.kyoku_num)
 
-    with open("hoge.json", "w") as f:
-        json.dump(kyoku_data, f, indent=2)
+        with open("hoge.json", "w") as f:
+            json.dump(kyoku_data, f, indent=2)
 
-    kyoku = Kyoku(kyoku_data)
-    while kyoku.step():
-        print("---------------------------")
+        kyoku = Kyoku(kyoku_data)
+        while kyoku.step():
+            print("---------------------------")
+            kyoku.show()
+            print(kyoku.get_data())
+        print("====== 終局 ======")
         kyoku.show()
-    print("====== 終局 ======")
-    kyoku.show()

@@ -6,8 +6,7 @@ from kyoku import Kyoku
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-k", "--kyoku_num", type=int, help="kyoku number")
-    parser.add_argument("file", help="paifu file")
+    parser.add_argument("files", nargs="+", help="paifu file")
     return parser.parse_args()
 
 
@@ -27,9 +26,12 @@ def count_kyoku(json_data):
 
 def extract_one_kyoku(json_data, kyoku_num):
     max_kyoku_num = count_kyoku(json_data)
-    if max_kyoku_num <= kyoku_num:
+    if kyoku_num < 0:
+        raise ValueError("kyoku_num is too small")
+    elif max_kyoku_num < kyoku_num:
         raise ValueError("kyoku_num is too large")
 
+    kyoku_num += 1
     kyoku = []
     for entry in json_data:
         if entry["cmd"] == "kyokustart":
@@ -43,21 +45,30 @@ def extract_one_kyoku(json_data, kyoku_num):
     return kyoku
 
 
-if __name__ == "__main__":
-    args = parse_args()
-    json_data = load_paifu(args.file)
-    print(count_kyoku(json_data))
-    kyoku_data = extract_one_kyoku(json_data, args.kyoku_num)
-
-    with open("hoge.json", "w") as f:
-        json.dump(kyoku_data, f, indent=2)
-
+def show_kyoku(kyoku_data):
+    all_data = []
     kyoku = Kyoku(kyoku_data)
     while kyoku.step():
-        print("---------------------------")
-        kyoku.show()
-        #showの代わりにmakeflatdataが返してきたtrdataを表示
-        data = kyoku.make_tr_data()
-        print(data)
-    print("====== 終局 ======")
-    kyoku.show()
+        for entry in json_data:
+            if entry["cmd"] == "sutehai":
+                print("---------------------------")
+                kyoku.show()
+                trdata = kyoku.make_tr_data()
+                print(trdata)
+                all_data.append([trdata, "sutehai"])
+                return all_data
+            break
+
+
+if __name__ == "__main__":
+    args = parse_args()
+    hoge = []
+    for file in args.files:
+        json_data = load_paifu(file)
+        print(count_kyoku(json_data))
+    
+        for kyoku_num in range(count_kyoku(json_data)):
+            kyoku_data = extract_one_kyoku(json_data, kyoku_num)
+            train_kyoku_data = show_kyoku(kyoku_data)
+            hoge.extend(train_kyoku_data)
+  

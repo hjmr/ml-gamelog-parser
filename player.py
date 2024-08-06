@@ -117,54 +117,39 @@ class Player:
 
 
 
-#設計図を作る
-#手牌を作る関数
-#河とかをつくる関数
-#フラグ、局情報、点棒を追加
 
-    def make_data(self):
-        self.make_tehai = [[self.tehai[idx] if idx < len(self.tehai) else 0] for idx in range(13)]
-        self.make_furo = [[self.tehai[idx] if idx < len(self.furo) else 0] for idx in range(16)]
-        self.make_sutehai = [[self.sutehai[idx] if idx < len(self.sutehai) else 0] for idx in range(25)]
+# 手牌、副露、捨て牌、フラグ、点数を入力として受け取り、それを正規化して返す関数
+
+    def normal_hai_code(self, hai):
+        return hai / (len(code2disphai) - 1)
 
 
     def make_tehai(self):
-        tehai_data = [self.tehai[idx] if idx < len(self.tehai) else 0 for idx in range(13)]
+        tehai_data = [self.normal_hai_code(self.tehai[idx]) if idx < len(self.tehai) else 0.0 for idx in range(13)]
         return tehai_data
     
     def make_furo(self):
-        furo_data = [self.furo[idx] if idx < len(self.furo) else 0 for idx in range(16)]
+        furo_data = [self.normal_hai_code(self.furo[idx]) if idx < len(self.furo) else 0.0 for idx in range(16)]
         return furo_data
     
     def make_sutehai(self):
-        sutehai_data = [self.sutehai[idx] if idx < len(self.sutehai) else 0 for idx in range(25)]
+        sutehai_data = [self.normal_hai_code(self.sutehai[idx]) if idx < len(self.sutehai) else 0.0 for idx in range(25)]
         return sutehai_data
 
     def make_flag(self):
         def is_richi(flag):
-            return 2 if 0 < ((flag % 8) // 4) else 1
-        richi_flags_data = [is_richi(self.sutehai_flags[idx]) if idx < len(self.sutehai_flags) else 0 for idx in range(25)]
+            return 1 if 0 < ((flag % 8) // 4) else 0.5
+        richi_flags_data = [is_richi(self.sutehai_flags[idx]) if idx < len(self.sutehai_flags) else 0.0 for idx in range(25)]
         
         def is_naki(flag):
-            return 2 if 0 < ((flag % 4) // 2) else 1
-        naki_flags_data = [is_naki(self.sutehai_flags[idx]) if idx < len(self.sutehai_flags) else 0 for idx in range(25)]
+            return 1 if 0 < ((flag % 4) // 2) else 0.5
+        naki_flags_data = [is_naki(self.sutehai_flags[idx]) if idx < len(self.sutehai_flags) else 0.0 for idx in range(25)]
         
         def is_tsumogiri(flag):
-            return 2 if 0 < (flag % 2 ) else 1
-        tsumogiri_flags_data = [is_tsumogiri(self.sutehai_flags[idx]) if idx < len(self.sutehai_flags) else 0 for idx in range(25)]
+            return 1 if 0 < (flag % 2 ) else 0.5
+        tsumogiri_flags_data = [is_tsumogiri(self.sutehai_flags[idx]) if idx < len(self.sutehai_flags) else 0.0 for idx in range(25)]
     
         return richi_flags_data, naki_flags_data, tsumogiri_flags_data
     
     
-    def make_point(self):
-        # ここでpointを正規化するロジックを追加
-        min_point = 0  # 最小値を設定
-        max_point = 50  # 最大値を設定
-        point_data = (self.point - min_point) / (max_point - min_point)
-        return point_data
     
-
-    
-
-
-

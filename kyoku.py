@@ -118,15 +118,14 @@ class Kyoku:
     def do_point(self, args):
         player = self.players[args[0]]
         point_op = args[1][0]
-        point = int(args[1][1:])
         if point_op == "+":
-            player.point += point
+            player.point += int(args[1][1:])
         elif point_op == "-":
-            player.point -= point
+            player.point -= int(args[1][1:])
         elif point_op == "=":
-            player.point = point
+            player.point = int(args[1][1:])
         else:
-            raise ValueError("Invalid point operation")
+            player.point = int(args[1])
         return True
 
     def show(self):
@@ -142,8 +141,10 @@ class Kyoku:
 #くっつけるやつ作る
 #どうやって呼び出すか        
 
+
+
     def make_tr_data(self):
-        point_threshold = (-12000, -4500, 0, 4500, 12000)
+        point_threshold = (-12000, -4000, 0, 4000, 12000)
         trdata = []
         if 0 < len(self.teban):
             teban_player = self.teban[-1]
@@ -174,7 +175,8 @@ class Kyoku:
                         if diff_point < poi_t:
                             normalized_point = p_idx
                             break
-                    trdata.append(normalized_point)
+                    trdata.append(normalized_point / 5)
+                    
                 
                 #親情報を追加
                 if p == self.oya:
@@ -184,22 +186,23 @@ class Kyoku:
 
 
             #ドラ情報を追加
-            dora_data = self.dora[:]
-            if len(dora_data) < 4:
-                dora_data.extend([0] * (4 - len(dora_data)))
+            dora_info = self.dora[:]
+            dora_data = []
+            if len(dora_info) < 4:
+                dora_info.extend([0] * (4 - len(dora_info)))
+                for idx in range(4):
+                    dora_data.append(dora_info[idx] / (len(code2disphai) - 1))
+
             trdata.extend(dora_data)
 
             #本場情報を追加
-            trdata.append(int(self.honba))
+            trdata.append(int(self.honba[0]) / 30)
 
             #場風情報を追加
-            trdata.append(self.bakaze)
+            trdata.append(self.bakaze / (len(code2disphai) - 1))
 
             #供託情報を追加
-            trdata.append(int(float(self.kyoutaku) / 1000))
-            
-
-
+            trdata.append(float(self.kyoutaku) / 10000)
 
         return trdata
 

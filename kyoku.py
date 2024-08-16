@@ -17,6 +17,7 @@ class Kyoku:
         self.kyoku_data = kyoku_data
         self.current_step = 0
         self.teban = []
+        self.is_sutehai = False
 
         # fmt: off
         self.commands = {
@@ -52,6 +53,12 @@ class Kyoku:
         playing = self.commands[entry["cmd"]](entry["args"])
         self.current_step += 1
         return playing
+
+    #["cmd"]がsutehaiかどうかを確認
+    def check_sutehai(self):
+        entry = self.kyoku_data[self.current_step]
+        if entry["cmd"] == "sutehai":
+            self.is_sutehai = True
 
     def do_dummy(self, args):
         return True
@@ -135,14 +142,6 @@ class Kyoku:
         for player_name in self.player_names:
             self.players[player_name].show()
 
-
-
-#データを用意してextendしていく
-#くっつけるやつ作る
-#どうやって呼び出すか        
-
-
-
     def make_tr_data(self):
         point_threshold = (-12000, -4000, 0, 4000, 12000)
         trdata = []
@@ -177,13 +176,11 @@ class Kyoku:
                             break
                     trdata.append(normalized_point / 5)
                     
-                
                 #親情報を追加
                 if p == self.oya:
                     trdata.append(1)
                 else:
                     trdata.append(0)
-
 
             #ドラ情報を追加
             dora_info = self.dora[:]
@@ -192,16 +189,11 @@ class Kyoku:
                 dora_info.extend([0] * (4 - len(dora_info)))
                 for idx in range(4):
                     dora_data.append(dora_info[idx] / (len(code2disphai) - 1))
-
             trdata.extend(dora_data)
 
-            #本場情報を追加
+            #本場・場風・供託情報を追加
             trdata.append(int(self.honba[0]) / 30)
-
-            #場風情報を追加
             trdata.append(self.bakaze / (len(code2disphai) - 1))
-
-            #供託情報を追加
             trdata.append(float(self.kyoutaku) / 10000)
 
         return trdata

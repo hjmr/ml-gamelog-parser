@@ -48,16 +48,15 @@ def extract_one_kyoku(json_data, kyoku_num):
 def show_kyoku(kyoku_data):
     all_data = []
     kyoku = Kyoku(kyoku_data)
-    while kyoku.step():
-        for entry in json_data:
-            if entry["cmd"] == "sutehai":
-                print("---------------------------")
-                kyoku.show()
-                trdata = kyoku.make_tr_data()
-                print(trdata)
-                all_data.append([trdata, "sutehai"])
-                return all_data
-            break
+    #print(f"{kyoku.is_sutehai}")
+    if kyoku.is_sutehai == True:
+        print("---------------------------")
+        print(f"{kyoku.show()}")
+        kyoku.show()
+        trdata = kyoku.make_tr_data()
+        print(trdata)
+        all_data.append([trdata, "sutehai"])
+    return all_data
 
 
 if __name__ == "__main__":
@@ -65,10 +64,13 @@ if __name__ == "__main__":
     hoge = []
     for file in args.files:
         json_data = load_paifu(file)
-        print(count_kyoku(json_data))
+        #print(count_kyoku(json_data))
     
         for kyoku_num in range(count_kyoku(json_data)):
             kyoku_data = extract_one_kyoku(json_data, kyoku_num)
             train_kyoku_data = show_kyoku(kyoku_data)
             hoge.extend(train_kyoku_data)
-  
+
+
+
+

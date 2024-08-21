@@ -54,11 +54,11 @@ class Kyoku:
         self.current_step += 1
         return playing
 
-    #["cmd"]がsutehaiかどうかを確認
     def check_sutehai(self):
         entry = self.kyoku_data[self.current_step]
         if entry["cmd"] == "sutehai":
             self.is_sutehai = True
+        return self.is_sutehai 
 
     def do_dummy(self, args):
         return True

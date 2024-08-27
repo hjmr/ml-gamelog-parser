@@ -45,10 +45,14 @@ def extract_one_kyoku(json_data, kyoku_num):
     return kyoku
 
 
-def show_kyoku(kyoku_data):
+def show_kyoku(entry):
     all_data = []
+    #print(entry)
+    #print("---------------------------")
     kyoku = Kyoku(kyoku_data)
-    #print(f"{kyoku.is_sutehai}")
+    #print(kyoku)
+    #print(kyoku.show())
+    print(f"{kyoku.is_sutehai}")
     if kyoku.is_sutehai == True:
         print("---------------------------")
         print(f"{kyoku.show()}")
@@ -68,8 +72,15 @@ if __name__ == "__main__":
     
         for kyoku_num in range(count_kyoku(json_data)):
             kyoku_data = extract_one_kyoku(json_data, kyoku_num)
-            train_kyoku_data = show_kyoku(kyoku_data)
-            hoge.extend(train_kyoku_data)
+            #print(len(kyoku_data))
+            
+            for entry in kyoku_data:
+                #print(entry)
+                #print(entry["cmd"])
+                train_kyoku_data = show_kyoku(entry)
+                hoge.extend(train_kyoku_data)
+                #print(show_kyoku(kyoku_data))
+                #print(train_kyoku_data)
 
 
 

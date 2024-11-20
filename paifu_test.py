@@ -1,7 +1,7 @@
 import json
 import argparse
 
-from paifu_utils import load_paifu, count_kyoku, extract_one_kyoku
+from paifu_utils import load_paifu, count_kyoku, extract_one_kyoku, extract_player_names
 from kyoku import Kyoku
 
 
@@ -12,8 +12,8 @@ def parse_args():
     return parser.parse_args()
 
 
-def show_one_kyoku(kyoku_json):
-    kyoku = Kyoku(kyoku_json)
+def show_one_kyoku(kyoku_json, player_names):
+    kyoku = Kyoku(kyoku_json, player_names)
     while kyoku.step():
         if kyoku.is_tsumo:
             print("======== ツモ =========")
@@ -31,5 +31,6 @@ if __name__ == "__main__":
     if args.kyoku_num == -1:
         print("kyoku count:", count_kyoku(json_data))
     else:
+        player_names = extract_player_names(json_data)
         kyoku_json = extract_one_kyoku(json_data, args.kyoku_num)
-        show_one_kyoku(kyoku_json)
+        show_one_kyoku(kyoku_json, player_names)

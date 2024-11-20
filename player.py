@@ -9,8 +9,9 @@ sutehai_flags = {
 
 
 class Player:
-    def __init__(self, name, kyoku):
-        self.name = name
+    def __init__(self, code, kyoku):
+        self.code = code
+        self.name = code
         self.tehai = []
         self.tsumo = 0
         self.furo = []
@@ -117,7 +118,7 @@ class Player:
             + "|"
             + str(self.point)
         )
-        print(self.name + ":" + disp_str)
+        print(f"{self.name:<10}\t" + ":" + disp_str)
 
     def get_tehai_data(self):
         return [self.tehai[idx] if idx < len(self.tehai) else 0 for idx in range(13)]

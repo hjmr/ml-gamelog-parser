@@ -1,7 +1,7 @@
 import argparse
 
-from ml_utils.paifu_utils import load_paifu, count_kyoku, extract_one_kyoku, extract_player_names
-from ml_utils.kyoku import Kyoku
+from ml_utils import load_paifu, count_kyoku, extract_one_kyoku, extract_player_names
+from ml_utils import Kyoku
 
 
 def parse_args():

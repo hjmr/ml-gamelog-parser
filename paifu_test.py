@@ -15,10 +15,10 @@ def parse_args():
 def show_one_kyoku(kyoku_json, player_names):
     kyoku = Kyoku(kyoku_json, player_names)
     while kyoku.step():
-        if kyoku.is_tsumo:
+        if kyoku.was_tsumo:
             print("======== ツモ =========")
             kyoku.show()
-        elif kyoku.is_sutehai:
+        elif kyoku.was_sutehai:
             print("-------- 捨て ---------")
             kyoku.show()
     print("====== 終局 ======")

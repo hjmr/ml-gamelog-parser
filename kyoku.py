@@ -1,5 +1,5 @@
 from player import Player
-from pai_const import code2hai, code2disp
+from pai_const import code2pai, code2disp
 
 
 class Kyoku:
@@ -21,8 +21,8 @@ class Kyoku:
         self.current_step = 0
         self.teban = []
 
-        self.is_tsumo = False
-        self.is_sutehai = False
+        self.was_tsumo = False
+        self.was_sutehai = False
 
         # fmt: off
         self.commands = {
@@ -52,8 +52,8 @@ class Kyoku:
 
     def step(self):
         playing = True
-        self.is_sutehai = False
-        self.is_tsumo = False
+        self.was_sutehai = False
+        self.was_tsumo = False
 
         entry = self.kyoku_data[self.current_step]
         if entry["cmd"] not in self.commands:
@@ -62,15 +62,22 @@ class Kyoku:
         self.current_step += 1
         return playing
 
+    def will_sutehai(self):
+        return self.kyoku_data[self.current_step]["cmd"] == "sutehai"
+
+    def fast_forward(self, steps):
+        while self.current_step < steps:
+            self.step()
+
     def do_dummy(self, args):
         return True
 
     def do_kyokustart(self, args):
         self.oya = self.players[args[1]]
         self.honba = args[2]
-        self.bakaze = code2hai.index(args[4])
+        self.bakaze = code2pai.index(args[4])
         for idx in range(4):
-            self.players[self.player_codes[idx]].kaze = code2hai.index(args[5:][idx])
+            self.players[self.player_codes[idx]].kaze = code2pai.index(args[5:][idx])
         return True
 
     def do_kyokuend(self, args):
@@ -83,28 +90,28 @@ class Kyoku:
     def do_haipai(self, args):
         player = self.get_player(args[0])
         haipai_str = args[1]
-        haipai = [code2hai.index(haipai_str[idx : idx + 2]) for idx in range(0, len(haipai_str), 2)]
+        haipai = [code2pai.index(haipai_str[idx : idx + 2]) for idx in range(0, len(haipai_str), 2)]
         player.do_haipai(haipai)
         return True
 
     def do_tsumo(self, args):
         player = self.get_player(args[0])
-        tsumo_code = code2hai.index(args[2])
+        tsumo_code = code2pai.index(args[2])
         player.do_tsumo(tsumo_code)
-        self.is_tsumo = True
+        self.was_tsumo = True
         return True
 
     def do_sutehai(self, args):
         player = self.get_player(args[0])
-        sutehai_code = code2hai.index(args[1])
+        sutehai_code = code2pai.index(args[1])
         tsumogiri = True if len(args) == 3 and args[2] == "tsumogiri" else False
         player.do_sutehai(sutehai_code, tsumogiri)
-        self.is_sutehai = True
+        self.was_sutehai = True
         return True
 
     def do_dora(self, args):
-        if args[1] in code2hai:
-            dora_code = code2hai.index(args[1])
+        if args[1] in code2pai:
+            dora_code = code2pai.index(args[1])
             self.dora.append(dora_code)
         return True
 
@@ -116,8 +123,8 @@ class Kyoku:
         player = self.get_player(args[0])
         open_funcs = {"[": player.do_open_kakan, "(": player.do_open_ankan, "<": player.do_open_ponchi}
         tedashi_str = args[1][1:-1]
-        tedashi_code = [code2hai.index(tedashi_str[idx : idx + 2]) for idx in range(0, len(tedashi_str), 2)]
-        naki_code = code2hai.index(args[2]) if len(args) == 3 else 0
+        tedashi_code = [code2pai.index(tedashi_str[idx : idx + 2]) for idx in range(0, len(tedashi_str), 2)]
+        naki_code = code2pai.index(args[2]) if len(args) == 3 else 0
         open_funcs[open_flag](tedashi_code, naki_code)
         return True
 
@@ -150,11 +157,19 @@ class Kyoku:
         for p_code in self.player_codes:
             self.players[p_code].show()
 
-    def get_data(self):
+    def get_data(self, onehot=False):
         current_data = []
 
         if 0 < len(self.teban):
-            dora_data = [self.dora[idx] if idx < len(self.dora) else 0 for idx in range(4)]
+            dora_data = []
+            if onehot:
+                for idx in range(4):
+                    dora = [0] * (len(code2pai) - 1)
+                    if idx < len(self.dora):
+                        dora[self.dora[idx] - 1] = 1
+                    dora_data.extend(dora)
+            else:
+                dora_data = [self.dora[idx] if idx < len(self.dora) else 0 for idx in range(4)]
             current_data.extend(dora_data)
 
             teban_idx = self.player_codes.index(self.teban[-1].code)
@@ -165,13 +180,13 @@ class Kyoku:
 
                 # 手番のプレイヤーの手牌
                 if rel_idx == 0:  # teban
-                    current_data.extend(player.get_tehai_data())
-                    current_data.append(player.get_tsumo_data())
+                    current_data.extend(player.get_tehai_data(onehot))
+                    current_data.extend(player.get_tsumo_data(onehot))
 
-                current_data.extend(player.get_furo_data())
-                current_data.extend(player.get_sutehai_data())
-                current_data.extend(player.get_tsumogiri_flags())
-                current_data.extend(player.get_richi_flags())
-                current_data.extend(player.get_naki_flags())
+                current_data.extend(player.get_furo_data(onehot))
+                current_data.extend(player.get_sutehai_data(onehot))
+                current_data.extend(player.get_tsumogiri_flags(onehot))
+                current_data.extend(player.get_richi_flags(onehot))
+                current_data.extend(player.get_naki_flags(onehot))
 
         return current_data

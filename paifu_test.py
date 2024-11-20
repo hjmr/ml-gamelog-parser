@@ -1,8 +1,7 @@
-import json
 import argparse
 
-from paifu_utils import load_paifu, count_kyoku, extract_one_kyoku, extract_player_names
-from kyoku import Kyoku
+from ml_utils.paifu_utils import load_paifu, count_kyoku, extract_one_kyoku, extract_player_names
+from ml_utils.kyoku import Kyoku
 
 
 def parse_args():
